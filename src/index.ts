@@ -1,0 +1,128 @@
+
+import {chunk,sleep} from './utils';
+
+type Task=()=>Promise<any>;
+type Iterator<T>=(item:T,index:number,resolve:Function,reject:Function)=>void;
+
+
+
+export function waterfall(tasks:Task[]):Promise<[]>{
+    let index=0;
+    function next(resolve:Function,data:any[]):any{
+        if(index<tasks.length){
+            return tasks[index]()
+            .then((res:any)=>{
+                res&&data.push({status:'fulfilled',value:res});
+            }).catch((error:any)=>{
+                data.push({status:'rejected',reason:error});
+            }).finally(()=>{
+                index++;
+                return next(resolve,data);
+            })
+        }
+        //所有异步任务执行完后返回结果
+        return resolve(data);
+    }
+    return new Promise((resolve)=>{
+        next(resolve,[]);
+    })
+}
+
+export function waterfallList<T>(list:T[],iterator:Iterator<T>):Promise<any[]>{
+    const tasks:Task[]=promiseIterator(list,iterator)
+    return waterfall(tasks);
+}
+
+
+// export function allSettle<T>(list:any[],iterator:Iterator<T>){
+//     const tasks=list.map((item,i)=>new Promise(async(resolve,reject)=>{
+//         try {
+//             await iterator(item,i,resolve,reject);
+//         } catch (error:any) {
+//             reject(error)
+//         }
+//     }))
+
+//     return Promise.allSettled(tasks);
+// }
+
+
+
+export function all(tasks:Task[]):Promise<any[]>{
+    let resolves=[];
+    while(tasks.length>0){
+        const current:Task=tasks.shift() as Task;
+        const newCurr=new Promise(((resolve)=>{
+            let currt:any;
+            current().then((data)=>{
+                currt=data;
+            }).catch(()=>{})
+            .finally(()=>{
+                resolve(currt)
+            })
+        }))
+        resolves.push(newCurr);
+    }
+    return Promise.all(resolves)
+    .then((list)=>{
+        return list.filter((item)=>!!item)
+    })
+}
+
+
+
+
+
+
+
+
+export function chunkTask(tasks:Task[],chunkSize:number,delay:number):Promise<any[]>{
+    const chunkTasks=chunk(tasks,chunkSize);
+
+    let index=0;
+    function next(resolve:Function,data:any[]):any{
+        if(index<chunkTasks.length){
+            return all(chunkTasks[index])
+            .then((res:any)=>{
+                res&&data.push(res);
+            }).finally(()=>{
+                index++;
+                sleep(delay).then(()=>{
+                 // console.log(`还剩下${chunkTasks.length}组待完成`)
+                    return next(resolve,data);
+                });
+
+            })
+        }
+        //所有异步任务执行完后返回结果
+        return resolve(data);
+    }
+    return new Promise((resolve)=>{
+        next(resolve,[]);
+    })
+}
+
+
+
+export function allList<T>(list:T[],iterator:Iterator<T>):Promise<any[]>{
+    const tasks:Task[]=promiseIterator(list,iterator);
+    return all(tasks)
+}
+
+
+/**
+ * @description 生产Task的数组迭代器
+ * @author neohua87@gmail.com
+ * @date 04/01/2023
+ * @param {T[]} list
+ * @param {Iterator} iterator
+ * @return {*}  {Task[]}
+ */
+function promiseIterator<T>(list:T[],iterator:Iterator<T>):Task[]{
+    return list.map((item:T,i)=>function(){
+        return new Promise((resolve,reject)=>{
+                iterator(item,i,resolve,reject);
+        })
+    })
+}
+
