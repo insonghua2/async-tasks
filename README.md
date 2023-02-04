@@ -5,9 +5,15 @@
 
 ## Install
 ```
-    npm install ins-async-task --save
+    npm install ins-async-tasks --save
 ```
  ## Usage
+### 引入
+ ```js
+    import * as AsyncTasks from 'ins-async-tasks';
+    //or
+    const AsyncTasks=require('ins-async-tasks');
+ ```
 
 ### 数组任务串行
 > 效果：<br/>
