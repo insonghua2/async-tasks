@@ -1,5 +1,13 @@
 
 
+> Simple And Easy to manage lots of async tasks in ways of Serial And Parallel
+
+
+## Install
+    、、、bash
+        npm install @ins/async-task --save
+    ```
+ ## Usage
 
 ### 数组任务串行
 > 效果：<br/>
@@ -10,7 +18,7 @@
 
 ```typescript
     const list=[1,2,3]
-    const res=await SkyPromise.waterfallList(list,(item,i,resolve,reject)=>{
+    const res=await AsyncTasks.waterfallList(list,(item,i,resolve,reject)=>{
         //dosth resolve(结果)或者reject(new Error('sth wrong))
     })
 ```
@@ -37,7 +45,7 @@
             resolve("data3")
         },3000)
     })
-    const res=await SkyPromise.waterfall([task1,task2,task3])
+    const res=await AsyncTasks.waterfall([task1,task2,task3])
 ```
 
 ### 数组任务并行,获取成功的结果列表
@@ -48,7 +56,7 @@
         &ensp;&ensp;Exec -------->| <br/>
 ```typescript
     const list=[1,2,3]
-    const res=await SkyPromise.allList(list,(item,i,resolve,reject)=>{
+    const res=await AsyncTasks.allList(list,(item,i,resolve,reject)=>{
         //dosth resolve(结果)或者reject(new Error('sth wrong))
     })
 ```
@@ -60,7 +68,7 @@
         &emsp;&emsp;C --->| <br/>
         &ensp;Exec -------->| <br/>
 ```typescript
-    const res=await SkyPromise.all([task1,task2,task3])
+    const res=await AsyncTasks.all([task1,task2,task3])
 ```
 
 
@@ -77,5 +85,5 @@
         &emsp;&emsp;G2 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;----------->| <br/>
 ```typescript
     //以3个位一组，每组之休息10秒
-    const res=await SkyPromise.chunkTask(tasks,3,1000)
+    const res=await AsyncTasks.chunkTask(tasks,3,1000)
 ```

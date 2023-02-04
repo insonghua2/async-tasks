@@ -1,7 +1,7 @@
 {
-  "name": "@skylar/async-tasks",
+  "name": "@ins/async-tasks",
   "version": "1.0.0",
-  "description": "skylar async tasks manager",
+  "description": "async tasks manager in list",
   "main": "dist/index.js",
   "files": [
     "src",
