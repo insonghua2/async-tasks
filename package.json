@@ -1,7 +1,7 @@
 {
-  "name": "@ins/async-tasks",
+  "name": "ins-async-tasks",
   "version": "1.0.0",
-  "description": "async tasks manager in list",
+  "description": "Simple and Easy to manage lots of async tasks  in ways of Serial And Parallel",
   "main": "dist/index.js",
   "files": [
     "src",
