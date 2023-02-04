@@ -11,6 +11,10 @@
     "README.md",
     "package.json"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/insonghua2/async-tasks"
+  },
   "scripts": {
     "test": "jest",
     "build": "tsc"
