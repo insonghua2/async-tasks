@@ -5,7 +5,7 @@
 
 ## Install
     、、、bash
-        npm install @ins/async-task --save
+        npm install ins-async-task --save
     ```
  ## Usage
 
