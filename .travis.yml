@@ -3,4 +3,4 @@ node_js:
   - "node"
   - "lts/*"
 script: npm test
-# after_success: npm run coveralls
+after_success: npm run coveralls
