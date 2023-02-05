@@ -1,7 +1,8 @@
 [![npm](https://img.shields.io/npm/v/ins-async-tasks.svg?style=flat-square)](https://www.npmjs.com/package/ins-async-tasks)
-[![Travis (.org)](https://img.shields.io/travis/insonghua2/async-tasks.svg?style=flat-square)](https://travis-ci.org/insonghua2/async-tasks)
+[![Build Status](https://app.travis-ci.com/insonghua2/async-tasks.svg?branch=master)](https://app.travis-ci.com/insonghua2/async-tasks)
 [![Coverage Status](https://coveralls.io/repos/github/insonghua2/async-tasks/badge.svg?branch=master)](https://coveralls.io/github/insonghua2/async-tasks?branch=master)
 [![npm](https://img.shields.io/npm/dt/ins-async-tasks.svg?style=flat-square)](https://www.npmjs.com/package/ins-async-tasks)
+![npm bundle size](https://img.shields.io/bundlephobia/min/ins-async-tasks)
 
 > Simple And Easy to manage lots of async tasks in ways of Serial And Parallel
 > provide five API as bellow:
