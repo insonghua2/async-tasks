@@ -18,7 +18,7 @@
   "scripts": {
     "test": "jest",
     "build": "tsc",
-    "coveralls": "cat ./coveralls/lcov.info | coveralls"
+    "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls"
   },
   "keywords": [
     "tasks",
