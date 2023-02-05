@@ -1,6 +1,6 @@
 {
   "name": "ins-async-tasks",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Simple and Easy to manage lots of async tasks  in ways of Serial And Parallel",
   "main": "dist/index.js",
   "files": [
@@ -20,8 +20,14 @@
     "build": "tsc"
   },
   "keywords": [
+    "tasks",
+    "async",
+    "async-tasks",
     "promise",
-    "async"
+    "parallel",
+    "serial",
+    "wait",
+    "task"
   ],
   "author": "",
   "license": "ISC",
