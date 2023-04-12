@@ -48,7 +48,7 @@ export function waterfallList<T>(list:T[],iterator:Iterator<T>):Promise<any[]>{
 
 
 
-export function all(tasks:Task[],isCatchError?:false):Promise<any[]>{
+function _all(tasks:Task[],isCatchError=false):Promise<any[]>{
     let promiseList=[];
     while(tasks.length>0){
         const current:Task=tasks.shift() as Task;
@@ -61,9 +61,10 @@ export function all(tasks:Task[],isCatchError?:false):Promise<any[]>{
                 }
             }).catch((error)=>{
                 if(isCatchError){
-                    resolve({status:'rejected',reason:error.message});
+                    resolve({status:'rejected',reason:error});
+                }else{
+                    resolve(undefined)
                 }
-                resolve(undefined)
             })
         }))
         promiseList.push(newCurr);
@@ -80,19 +81,22 @@ export function all(tasks:Task[],isCatchError?:false):Promise<any[]>{
 }
 
 
+export function all(tasks:Task[]):Promise<any[]>{
+    return _all(tasks,false)
+}
+
+export function allSettle(tasks:Task[]):Promise<any[]>{
+    return _all(tasks,true)
+}
 
 
-
-
-
-
-export function chunkTask(tasks:Task[],chunkSize:number,delay:number,isCatchError?:false):Promise<any[]>{
+function _chunkAll(tasks:Task[],chunkSize:number,delay:number,isCatchError:boolean):Promise<any[]>{
     const chunkTasks=chunk(tasks,chunkSize);
 
     let index=0;
     function next(resolve:Function,data:any[]):any{
         if(index<chunkTasks.length){
-            return all(chunkTasks[index],isCatchError)
+            return _all(chunkTasks[index],isCatchError)
             .then((res:any)=>{
                 res&&data.push(res);
             }).finally(()=>{
@@ -112,13 +116,23 @@ export function chunkTask(tasks:Task[],chunkSize:number,delay:number,isCatchErro
     })
 }
 
-
-
-export function allList<T>(list:T[],iterator:Iterator<T>,isCatchError?:false):Promise<any[]>{
-    const tasks:Task[]=promiseIterator(list,iterator);
-    return all(tasks,isCatchError)
+export function chunkTask(tasks:Task[],chunkSize:number,delay:number):Promise<any[]>{
+    return _chunkAll(tasks,chunkSize,delay,false)
 }
 
+export function chunkSettle(tasks:Task[],chunkSize:number,delay:number):Promise<any[]>{
+    return _chunkAll(tasks,chunkSize,delay,true)
+}
+
+export function allList<T>(list:T[],iterator:Iterator<T>):Promise<any[]>{
+    const tasks:Task[]=promiseIterator(list,iterator);
+    return _all(tasks,false)
+}
+
+export function allSettleList<T>(list:T[],iterator:Iterator<T>):Promise<any[]>{
+    const tasks:Task[]=promiseIterator(list,iterator);
+    return _all(tasks,true)
+}
 
 /**
  * @description 生产Task的数组迭代器

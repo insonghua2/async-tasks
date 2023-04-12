@@ -22,6 +22,28 @@
  ```
 ### API examples
 
+### data structure information
+define settledValue,task,tasks
+```javascript
+    const task=()=>new Promise((resolve,reject)=>{})
+    const tasks=[task]
+    const settledValue=[
+        {
+            status: 'fulfilled',
+            value:"your resolved data can be string or any object",
+        },
+          {
+            status: 'rejected',
+            reason:new Error('error detail message')
+        },
+        {
+            status: 'fulfilled',
+            value:"your resolved data can be string or any object",
+        }
+    // ]
+```
+
+
 ### waterfallList()
 Compose and execute tasks from array in ways of serial
 > Effect：<br/>
@@ -41,20 +63,7 @@ Compose and execute tasks from array in ways of serial
             reject(new Error(`task with index of ${i} failed`)
         }
     })
-    // res=[
-    //     {
-    //         status: 'fulfilled',
-    //         value:"data1",
-    //     },
-    //       {
-    //         status: 'rejected',
-    //         reason:"Error:task with index of 1 failed"
-    //     },
-    //     {
-    //         status: 'fulfilled',
-    //         value:"data3",
-    //     }
-    // ]
+    // res is settledValue;
 ```
 ### waterfall()
 Different types of tasks will be executed in ways of serial
@@ -64,45 +73,12 @@ Different types of tasks will be executed in ways of serial
         &emsp;&emsp;Task3 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;--->|<br/>
          &emsp;&emsp;Exec  ---------------------->| <br/>
 ```typescript
-    const task1=()=>new Promise((resolve,reject)=>{
-        setTimeout(()=>{
-            // dosth
-            resolve({foo:'data1'})
-        },2000)
-    })
-
-     const task2=()=>new Promise((resolve,reject)=>{
-        setTimeout(()=>{
-            // dosth
-            resolve("data2")
-        },1000)
-    })
-    const task3=()=>new Promise((resolve,reject)=>{
-        setTimeout(()=>{
-            // dosth
-            resolve("data3")
-        },3000)
-    })
     const res=await AsyncTasks.waterfall([task1,task2,task3])
-    // res=[
-    //     {
-    //         status: 'fulfilled',
-    //         value:{foo:'data1'},
-    //     },
-    //       {
-    //         status: 'fulfilled',
-    //         value: 'data2',
-    //     },
-    //     {
-    //         status: 'fulfilled',
-    //         value:"data3",
-    //     }
-    // ]
-
+    // res is settledValue;
 ```
 
 ### allList()
-Compose and execute tasks from array in ways of parallel
+Compose and execute tasks from array in ways of parallel and ignore error
 > Effect：<br/>
         &emsp;&emsp;Task1 ----->| <br/>
         &emsp;&emsp;Task2 -------->| <br/>
@@ -119,36 +95,48 @@ Compose and execute tasks from array in ways of parallel
             reject(new Error(`task with index of ${i} failed`)
         }
     })
-    // array from result only resolved in task
     // res=['data1','data3']
 ```
 
 ### all()
-Different types of tasks will be executed in ways of parallel
+Different types of tasks will be executed in ways of parallel and ignore error
 > Effect：<br/>
         &emsp;&emsp;Task1 ----->| <br/>
         &emsp;&emsp;Task2 -------->| <br/>
         &emsp;&emsp;Task3 --->| <br/>
         &ensp;&emsp;&emsp;Exec -------->| <br/>
 ```typescript
-     const tasks=[1,2,3].map((item)=>{
-        const task=()=>{
-            return new Promise((resolve, reject)=>{
-            const delay=Math.random()*1000;
-            setTimeout(()=>{
-                    resolve(`data${item}`)
-                },delay)
-            });
-        }
-        return task;
-    })
     const res=await AsyncTasks.all([task1,task2,task3])
-    // res=["data1","data2","data3"]
+    // if task2 has error, res=["data1","data3"]
+```
+### allSettleList()
+Different types of tasks will be executed in ways of parallel
+the same effect with AsyncTasks.allList but return settled value
+```typescript
+    const list=[1,2,3]
+    const res=await AsyncTasks.allSettleList(list,(item,i,resolve,reject)=>{
+        if(i!=1){
+            setTimeout(()=>{
+                resolve(`data${i+1}`)
+            },i*1000)
+        }else{
+            reject(new Error(`task with index of ${i} failed`)
+        }
+    })
+    // res is settledValue;
+```
+
+### allSettle()
+Different types of tasks will be executed in ways of parallel
+the same effect with AsyncTasks.all but return settled value
+```typescript
+    const res=await AsyncTasks.all([task1,task2,task3])
+    // res is settledValue;
 ```
 
 
 ### chunkTask()
-Large numbers of Tasks chunked with group and Executed,the tasks in group are executed in parallel,different groups are in serial.
+Large numbers of Tasks chunked with group and Executed,the tasks in group are executed in parallel,different groups are in serial. error will be ignored.
 > Effect：<br/>
         &emsp;&emsp;Task1 ----->| <br/>
         &emsp;&emsp;Task2 -------->| <br/>
@@ -163,17 +151,6 @@ Large numbers of Tasks chunked with group and Executed,the tasks in group are ex
         &emsp;&emsp;Task7 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;----------->| <br/>
 ```typescript
     //group chunked with 3 tasks,and sleep for 1000 milliseconds between different groups;
-    const tasks=[1,2,3,4,5,6,7].map((item)=>{
-        const task=()=>{
-            return new Promise((resolve, reject)=>{
-            const delay=Math.random()*1000;
-            setTimeout(()=>{
-                    resolve(`data${item}`)
-                },delay)
-            });
-        }
-        return task;
-    })
 
     const res=await AsyncTasks.chunkTask(tasks,3,1000)
     // res=[
@@ -183,5 +160,15 @@ Large numbers of Tasks chunked with group and Executed,the tasks in group are ex
     // ]
     const flatResult=res.flat();
     // flatResult=["data1","data2","data3","data4","data5","data6","data7"]
+```
+
+### chunkSettle()
+the same effect with chunkTask but catch all error and reject;
+
+```typescript
+    //group chunked with 3 tasks,and sleep for 1000 milliseconds between different groups;
+    const res=await AsyncTasks.chunkSettle(tasks,3,1000)
+    const flatResult=res.flat();
+    // flatResult is settledValue
 
 ```
