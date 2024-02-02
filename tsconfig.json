@@ -4,7 +4,8 @@
         "src/utils.ts",
     ],
     "compilerOptions": {
-        "target": "es5",
+        "target": "es2018",
+        "lib": ["es2018","dom"],
         "module": "commonjs",
         "outDir": "./dist",
         "strict": true,

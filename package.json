@@ -1,6 +1,6 @@
 {
   "name": "ins-async-tasks",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "description": "Simple and Easy to manage lots of async tasks  in ways of Serial And Parallel",
   "main": "dist/index.js",
   "files": [

@@ -4,23 +4,39 @@
 ![npm bundle size](https://img.shields.io/bundlephobia/min/ins-async-tasks)
 
 <!-- [![Build Status](https://app.travis-ci.com/insonghua2/async-tasks.svg?branch=master)](https://app.travis-ci.com/insonghua2/async-tasks) -->
-> Simple And Easy to manage lots of async tasks in ways of Serial And Parallel
-> provide five API as bellow:
-> waterfall,waterfallList,all,allList,chuckTask
-> exmaples in Usage
 
+# ins-async-task
+`ins-async-task` is a lightweight npm library that simplifies handling asynchronous tasks in JavaScript and TypeScript. It provides a set of utility functions to manage asynchronous operations effectively.
+
+## Table of Contents
+- [Installation](#installation)
+- [Usage](#usage)
+- [API](#api)
+  - [waterfall](#waterfall)
+  - [all](#all)
+  - [chunkTask](#chunktask)
+
+- [MORE API](#api)
+  - [waterfallList](#waterfalllist)
+  - [allList](#alllist)
+  - [allSettle](#allsettle)
+  - [allSettleList](#allsettlelist)
+  - [chunkSettle](#chunksettle)
 
 ## Install
 ```
     npm install ins-async-tasks --save
 ```
+
+
+
  ## Usage
  ```js
     import * as AsyncTasks from 'ins-async-tasks';
     //or
     const AsyncTasks=require('ins-async-tasks');
  ```
-### API examples
+### API
 
 ### data structure information
 define settledValue,task,tasks
@@ -42,16 +58,59 @@ define settledValue,task,tasks
         }
     // ]
 ```
-
-
-### waterfallList()
-Compose and execute tasks from array in ways of serial
+### waterfall()
+Different types of tasks will be executed in ways of serial
 > Effect：<br/>
         &emsp;&emsp;Task1 ----->| <br/>
         &emsp;&emsp;Task2 &emsp;&emsp;&emsp;-------->| <br/>
         &emsp;&emsp;Task3 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;--->|<br/>
-         &emsp;&emsp;Exec  ---------------------->| <br/>
+```typescript
+    const res=await AsyncTasks.waterfall([task1,task2,task3])
+    // res is settledValue;
+```
 
+### all()
+Different types of tasks will be executed in ways of parallel and ignore error
+> Effect：<br/>
+        &emsp;&emsp;Task1 ----->| <br/>
+        &emsp;&emsp;Task2 -------->| <br/>
+        &emsp;&emsp;Task3 --->| <br/>
+```typescript
+    const res=await AsyncTasks.all([task1,task2,task3])
+    // if task2 has error, res=["data1","data3"]
+```
+
+### chunkTask()
+Large numbers of Tasks chunked with group and Executed,the tasks in group are executed in parallel,different groups are in serial. error will be ignored.
+> Effect：<br/>
+        &emsp;&emsp;Group1 <br/>
+            &emsp;&emsp;&emsp;&emsp;Task1 ----->| <br/>
+            &emsp;&emsp;&emsp;&emsp;Task2 -------->| <br/>
+            &emsp;&emsp;&emsp;&emsp;Task3 --->| <br/>
+        &emsp;&emsp;Wait &emsp;&emsp;&emsp;&emsp; &emsp;&emsp;&emsp;|-->|<br/>
+        &emsp;&emsp;Group2 <br/>
+        &emsp;&emsp;&emsp;&emsp;Task4   &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;----->| <br/>
+        &emsp;&emsp;&emsp;&emsp;Task5   &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;-------->| <br/>
+        &emsp;&emsp;&emsp;&emsp;Task6 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;----------->| <br/>
+        &emsp;&emsp;Wait  &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; &emsp;&emsp;&emsp; &emsp; &emsp;&emsp;|-->| <br/>
+        &emsp;&emsp;&emsp;&emsp;Task7 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; ---------->| <br/>
+```typescript
+    //group chunked with 3 tasks,and sleep for 1000 milliseconds between different groups;
+
+    const res=await AsyncTasks.chunkTask(tasks,3,1000)
+    // res=[
+    //     [ "data1","data2","data3"],
+    //     ["data4","data5","data6"],
+    //     [,"data7"],
+    // ]
+    const flatResult=res.flat();
+    // flatResult=["data1","data2","data3","data4","data5","data6","data7"]
+```
+
+
+
+### waterfallList()
+Compose and execute tasks from array in ways of serial
 ```typescript
     const list=[1,2,3]
     const res=await AsyncTasks.waterfallList(list,(item,i,resolve,reject)=>{
@@ -65,25 +124,10 @@ Compose and execute tasks from array in ways of serial
     })
     // res is settledValue;
 ```
-### waterfall()
-Different types of tasks will be executed in ways of serial
-> Effect：<br/>
-        &emsp;&emsp;Task1 ----->| <br/>
-        &emsp;&emsp;Task2 &emsp;&emsp;&emsp;-------->| <br/>
-        &emsp;&emsp;Task3 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;--->|<br/>
-         &emsp;&emsp;Exec  ---------------------->| <br/>
-```typescript
-    const res=await AsyncTasks.waterfall([task1,task2,task3])
-    // res is settledValue;
-```
+
 
 ### allList()
 Compose and execute tasks from array in ways of parallel and ignore error
-> Effect：<br/>
-        &emsp;&emsp;Task1 ----->| <br/>
-        &emsp;&emsp;Task2 -------->| <br/>
-        &emsp;&emsp;Task3 --->| <br/>
-        &ensp;&ensp;&emsp;Exec --------->| <br/>
 ```typescript
     const list=[1,2,3]
     const res=await AsyncTasks.allList(list,(item,i,resolve,reject)=>{
@@ -98,17 +142,7 @@ Compose and execute tasks from array in ways of parallel and ignore error
     // res=['data1','data3']
 ```
 
-### all()
-Different types of tasks will be executed in ways of parallel and ignore error
-> Effect：<br/>
-        &emsp;&emsp;Task1 ----->| <br/>
-        &emsp;&emsp;Task2 -------->| <br/>
-        &emsp;&emsp;Task3 --->| <br/>
-        &ensp;&emsp;&emsp;Exec -------->| <br/>
-```typescript
-    const res=await AsyncTasks.all([task1,task2,task3])
-    // if task2 has error, res=["data1","data3"]
-```
+
 ### allSettleList()
 Different types of tasks will be executed in ways of parallel
 the same effect with AsyncTasks.allList but return settled value
@@ -135,32 +169,7 @@ the same effect with AsyncTasks.all but return settled value
 ```
 
 
-### chunkTask()
-Large numbers of Tasks chunked with group and Executed,the tasks in group are executed in parallel,different groups are in serial. error will be ignored.
-> Effect：<br/>
-        &emsp;&emsp;Task1 ----->| <br/>
-        &emsp;&emsp;Task2 -------->| <br/>
-        &emsp;&emsp;Task3 --->| <br/>
-        &emsp;&emsp;Group1 -------->| <br/>
-        &emsp;Wait  &emsp; &emsp;&emsp;&emsp; &emsp; &emsp;|-->| <br/>
-        &emsp;&emsp;Task4   &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;----->| <br/>
-        &emsp;&emsp;Task5   &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;-------->| <br/>
-        &emsp;&emsp;Task6 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;----------->| <br/>
-        &emsp;&emsp;Group2 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;------------>| <br/>
-        &emsp;Wait  &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; &emsp;&emsp;&emsp; &emsp; &emsp;|-->| <br/>
-        &emsp;&emsp;Task7 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;----------->| <br/>
-```typescript
-    //group chunked with 3 tasks,and sleep for 1000 milliseconds between different groups;
 
-    const res=await AsyncTasks.chunkTask(tasks,3,1000)
-    // res=[
-    //     [ "data1","data2","data3"],
-    //     ["data4","data5","data6"],
-    //     [,"data7"],
-    // ]
-    const flatResult=res.flat();
-    // flatResult=["data1","data2","data3","data4","data5","data6","data7"]
-```
 
 ### chunkSettle()
 the same effect with chunkTask but catch all error and reject;
